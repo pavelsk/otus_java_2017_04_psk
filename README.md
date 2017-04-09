@@ -1,3 +1,6 @@
-<b>Павел Скрицкий</b>
+Группа 2017-04.2
 
-<b>Pavel Skritskiy</b>
+### Автор 
+Pavel Skritskiy (Павел Скрицкий)
+
+pavel_working@mail.ru
