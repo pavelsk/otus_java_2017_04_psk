@@ -1,12 +1,21 @@
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Benchmark implements BenchmarkMBean {
 
     private int size;
 
-    private boolean running = true;
+    private volatile boolean running = true;
 
     private int duration;
+
+    private class BenchmarkTimerTask extends TimerTask {
+        @Override
+        public void run() {
+            Benchmark.this.running = false;
+        }
+    }
 
     void run() throws InterruptedException {
         this.startTimer();
@@ -14,15 +23,8 @@ public class Benchmark implements BenchmarkMBean {
     }
 
     private void startTimer() {
-        new Thread(() -> {
-            try {
-                Thread.sleep(this.duration);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } finally {
-                this.running = false;
-            }
-        }).start();
+        Timer timer = new Timer();
+        timer.schedule(new BenchmarkTimerTask(), this.duration);
     }
 
     private void startMemoryManipulations() throws InterruptedException {

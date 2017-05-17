@@ -95,42 +95,18 @@ public class ReflectionHelper {
         return null;
     }
 
-    public static Method[] getTestMethods(Class<?> type) {
+    public static Method[] getTestMethods(Class<?> type, Class<?> annotationClass) {
         List<Method> methods = new ArrayList<>();
 
         for (Method method : type.getDeclaredMethods()) {
             for (Annotation annotation : method.getDeclaredAnnotations()) {
-                if (annotation instanceof Test) {
+                if (annotationClass.isInstance(annotation)) {
                     methods.add(method);
                 }
             }
         }
 
         return methods.toArray(new Method[methods.size()]);
-    }
-
-    public static Method getBeforeMethod(Class<?> type) {
-        for (Method method : type.getDeclaredMethods()) {
-            for (Annotation annotation : method.getDeclaredAnnotations()) {
-                if (annotation instanceof Before) {
-                    return method;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    public static Method getAfterMethod(Class<?> type) {
-        for (Method method : type.getDeclaredMethods()) {
-            for (Annotation annotation : method.getDeclaredAnnotations()) {
-                if (annotation instanceof After) {
-                    return method;
-                }
-            }
-        }
-
-        return null;
     }
 
     static private Class<?>[] toClasses(Object[] args) {

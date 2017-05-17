@@ -1,5 +1,8 @@
 package xunit;
 
+import xunit.annotations.After;
+import xunit.annotations.Before;
+import xunit.annotations.Test;
 import xunit.helpers.ReflectionHelper;
 
 import java.io.File;
@@ -63,20 +66,22 @@ public class XUnit {
         int count = 0;
 
         for (Class<?> clazz : classes) {
-            Method beforeMethod = ReflectionHelper.getBeforeMethod(clazz);
-            Method afterMethod = ReflectionHelper.getAfterMethod(clazz);
-            Method[] testMethods = ReflectionHelper.getTestMethods(clazz);
+            Method[] beforeMethods = ReflectionHelper.getTestMethods(clazz, Before.class);
+            Method[] afterMethods = ReflectionHelper.getTestMethods(clazz, After.class);
+            Method[] testMethods = ReflectionHelper.getTestMethods(clazz, Test.class);
 
             for (Method method : testMethods) {
                 Object instance = ReflectionHelper.instantiate(clazz);
 
-                if (beforeMethod != null) {
+                if (beforeMethods.length > 0) {
+                    Method beforeMethod = beforeMethods[beforeMethods.length - 1];
                     ReflectionHelper.callMethod(instance, beforeMethod);
                 }
 
                 ReflectionHelper.callMethod(instance, method);
 
-                if (afterMethod != null) {
+                if (afterMethods.length > 0) {
+                    Method afterMethod = afterMethods[afterMethods.length - 1];
                     ReflectionHelper.callMethod(instance, afterMethod);
                 }
 
