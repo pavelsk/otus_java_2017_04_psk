@@ -4,7 +4,6 @@ import helpers.ReflectionHelper;
 import xjson.classes.*;
 import xjson.processors.ProcessorFactory;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -15,11 +14,22 @@ public class JsonSerializer implements ISerializer {
             return null;
         }
 
+        // Проверяем базовые типы
+        String type = o.getClass().getTypeName().toLowerCase();
+        ClassSerializer serializer = ProcessorFactory.build(null, type, o);
+
+        if (serializer != null) {
+            StringJoiner joiner = new StringJoiner("", "", "");
+            serializer.serialize(joiner);
+            return joiner.toString();
+        }
+
+        // Для кастомных классов орудуем рефлексией
         Field[] fields = ReflectionHelper.getFields(o);
         ClassSerializer classSerializer = buildClassSerializers(o, fields);
 
         if (classSerializer == null) {
-            return null;
+            return "{}";
         }
 
         StringJoiner sj = new StringJoiner(",", "{", "}");
