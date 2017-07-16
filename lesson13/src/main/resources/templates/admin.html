@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Админская страница</title>
+</head>
+<body>
+    <h1>Параметры кэша</h1>
+    <div id="data">Устанавливается соединение с сервером...</div>
+    <br/>
+    <button id="update">обновить</button>
+
+    <script type="text/javascript">
+        function Statistics() {
+            this.ws = null;
+            this.interval = null;
+
+            this.init = function () {
+                this.ws = new WebSocket("ws://localhost:8080/stats");
+                this.ws.onopen = function (event) {
+                    document.getElementById('data').innerHTML = 'Соединение с сервером установлено';
+                };
+                this.ws.onmessage = function (event) {
+                    var data = JSON.parse(event.data);
+                    var result = 'Количество хитов: ' + data.hitCount;
+                    result += ' Процент попаданий: ' + Math.round(data.hitCount / (data.hitCount + data.missCount) *
+                            100) + '%';
+                    result += '<br/>';
+                    result += ' Количество миссов: ' + data.missCount;
+                    result += ' Процент промахов: ' + Math.round(data.missCount / (data.hitCount + data.missCount) *
+                            100) + '%';
+                    document.getElementById('data').innerHTML = result;
+                };
+                this.ws.onclose = function (event) {
+                    document.getElementById('update').disabled = true;
+                    document.getElementById('data').innerHTML = 'Соединение с сервером закрыто';
+
+                    clearInterval(this.interval);
+                };
+
+                this.interval = setInterval(this.update.bind(this), 1000);
+            };
+
+            this.update = function () {
+                this.ws.send('update');
+            };
+        }
+
+        var stats = new Statistics();
+        stats.init();
+
+        document.getElementById('update').onclick = function () {
+            stats.update();
+        };
+    </script>
+</body>
+</html>
